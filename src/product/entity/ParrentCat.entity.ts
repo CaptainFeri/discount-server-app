@@ -4,17 +4,15 @@ import { ProductEntity } from "./product.entity";
 
 @Entity({ name: 'parrentCats'})
 export class parrentCatEntity {
-
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToMany(() => ProductEntity, (product) => product.parentCat)
+    @OneToMany(() => ProductEntity, (product) => product.parrentCat)
     childer: ProductEntity[];
-    
-    @Column()
-    category_name: string;
     
     @ManyToOne(() => MainCatEntity, (mom) => mom.children, { eager: true})
     mainCat : MainCatEntity;
-
+    
+    @Column()
+    category_name: string;
 }

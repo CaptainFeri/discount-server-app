@@ -1,14 +1,28 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { DiscountEntity } from 'src/discount/entity/discount.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-@Entity({ name: 'users'})
+@Entity({ name: 'users' })
 export class UserEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    username: string;
+  @Column()
+  username: string;
 
-    @Column()
-    mobile: string;
-    
+  @Column()
+  mobile: string;
+
+  @ManyToMany(() => DiscountEntity, (discount) => discount.discount_user_id, {
+    eager: true,
+  })
+  
+  @JoinTable()
+  discounts: DiscountEntity[];
 }

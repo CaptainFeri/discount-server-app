@@ -9,6 +9,6 @@ export class MainCatEntity {
     @Column()
     main_cat_name: string;
 
-    @OneToMany(() => parrentCatEntity, (cat) => cat.id)
+    @OneToMany(() => parrentCatEntity, (cat) => cat.mainCat)
     children: parrentCatEntity[];
 }
