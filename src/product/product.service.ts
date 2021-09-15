@@ -1,6 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DiscountService } from 'src/discount/discount.service';
+import { DiscountEntity } from 'src/discount/entity/discount.entity';
 import { ResponseModel } from 'src/types/ResponseModel';
+import { UserEntity } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
 import { ProductDto } from './dto/ProductDto.dto';
 import { MainCatEntity } from './entity/mainCat.entity';
@@ -16,6 +19,10 @@ export class ProductService {
     private readonly catRepository: Repository<parrentCatEntity>,
     @InjectRepository(MainCatEntity)
     private readonly McatRepository: Repository<MainCatEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(DiscountEntity)
+    private readonly discountRepository: Repository<DiscountEntity>,
   ) {}
 
   async createProduct(product: ProductDto): Promise<ResponseModel> {
@@ -82,7 +89,44 @@ export class ProductService {
     }
   }
 
-  async addProductToCategory(): Promise<ResponseModel> {
-    return null;
+  async addDiscountToProductForUser(
+    userId: number,
+    productId: number,
+    discount_event: string,
+  ): Promise<ResponseModel> {
+    const usr = await this.userRepository.findOne({ id: userId });
+    const product = await this.productRepository.findOne({ id: productId });
+    if (usr && product) {
+      let have = false;
+      usr.discounts.forEach((el) => {
+        if (el.discount_event == discount_event) {
+          const resp = new ResponseModel();
+          (resp.status = HttpStatus.FOUND),
+            resp.messages.push('this user has this discount event');
+          resp.data = { have, el };
+          have = true;
+          return resp;
+        }
+      });
+      if (!have) {
+        const discount = await this.discountRepository.findOne({
+          discount_event,
+        });
+        if (discount) {
+          usr.discounts.push(discount);
+          const resp = new ResponseModel();
+          (resp.status = HttpStatus.OK),
+            resp.messages.push('add discount to user');
+          resp.data = { usr };
+          return resp;
+        } else {
+          const resp = new ResponseModel();
+          (resp.status = HttpStatus.NOT_FOUND),
+            resp.messages.push('this discount not exist!');
+          resp.data = { discount };
+          return resp;
+        }
+      }
+    }
   }
 }
