@@ -6,7 +6,7 @@ const config : ConnectionOptions = {
     port: 5432,
     username: 'postgres',
     password: 'admin',
-    database:"my-discout",
+    database:"my-discount",
     // entities: [TagEntity,UserEntity,ArticleEntity,FollowEntity],
     entities: ["dist/**/*.entity{.ts,.js}"],
     synchronize: true,

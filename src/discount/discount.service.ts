@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { throws } from 'assert';
 import { ProductEntity } from 'src/product/entity/product.entity';
 import { ResponseModel } from 'src/types/ResponseModel';
 import { UserEntity } from 'src/user/entity/user.entity';
@@ -18,28 +19,20 @@ export class DiscountService {
         private readonly productRepository: Repository<ProductEntity>,
     ) {}
 
-    async createDiscountForProduct(discount: DiscountDto): Promise<ResponseModel> {
-        const newDis = new DiscountEntity();
-        const user = await this.userRepository.findOne({ id: discount.discount_user_id});
-        const product = await this.productRepository.find({ id: discount.discount_product_id});
-        if (!user || !product) {
-            const resp = new ResponseModel();
-            resp.status = HttpStatus.BAD_REQUEST;
-            resp.messages.push('user or product not exist!');
-            resp.data = newDis;
-            return resp;
-        }else {
-            newDis.discount_event = discount.discount_event;
-            newDis.discount_user_id.push(user);
-            newDis.discount_product_id = discount.discount_product_id;
-            newDis.discount_percent = discount.discount_percrnt;
-            const resp = new ResponseModel();
-            resp.status = HttpStatus.OK;
-            resp.messages.push('new discount created!');
-            resp.data = newDis;
-            return resp;
+    async createDiscount(discountDto: DiscountDto): Promise<DiscountEntity> {
+        const newDiscount = new DiscountEntity();
+        newDiscount.discount_percent = discountDto.discount_percrnt;
+        const product = await this.productRepository.findOne({ id: discountDto.discount_product_id});
+        newDiscount.discount_event = discountDto.discount_event;
+        const user = await this.userRepository.findOne({ id: discountDto.discount_user_id });
+        if(user){
+            newDiscount.discount_user_id.push(user);
+            if(product) {
+                newDiscount.discount_product_id = product.id;
+                await this.discountRepository.insert(newDiscount);
+                return newDiscount;
+            }
         }
+        return null;
     }
-
-
 }

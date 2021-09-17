@@ -4,7 +4,6 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -22,7 +21,6 @@ export class UserEntity {
   @ManyToMany(() => DiscountEntity, (discount) => discount.discount_user_id, {
     eager: true,
   })
-  
   @JoinTable()
   discounts: DiscountEntity[];
 }

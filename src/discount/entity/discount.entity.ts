@@ -10,7 +10,7 @@ export class DiscountEntity {
     @ManyToOne(()=> ProductEntity , (product) => product.discounts)
     discount_product_id: number;
 
-    @ManyToMany(() => UserEntity, (usr) => usr.discounts, {eager: true})
+    @ManyToMany(() => UserEntity, (usr) => usr.discounts)
     discount_user_id: UserEntity[];
 
     @Column()
